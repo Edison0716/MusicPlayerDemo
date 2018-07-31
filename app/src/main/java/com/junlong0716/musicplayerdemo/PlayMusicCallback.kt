@@ -15,5 +15,7 @@ interface PlayMusicCallback {
     fun onPlayerMediaPrepared()
 
     //获取当前播放位置
-    fun onPlayerCurrentPosition(currentPosition:Int)
+    fun onPlayerCurrentPosition(currentPosition: Int)
+
+    fun onPlayerBarVisibleState(isVisible: Boolean)
 }

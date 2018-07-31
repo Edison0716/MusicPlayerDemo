@@ -51,7 +51,7 @@ class MainActivity : AppCompatActivity(), PlayMusicCallback {
     }
 
     override fun onPlayMusicComplete() {
-
+        Toast.makeText(this, "播放完成", Toast.LENGTH_SHORT).show()
     }
 
 
@@ -71,5 +71,9 @@ class MainActivity : AppCompatActivity(), PlayMusicCallback {
             mPlayerManager = null
         }
         unbindService(conn)
+    }
+
+    override fun onPlayerBarVisibleState(isVisible: Boolean) {
+        Toast.makeText(this, isVisible.toString(), Toast.LENGTH_SHORT).show()
     }
 }

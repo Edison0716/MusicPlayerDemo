@@ -18,20 +18,15 @@ class MusicDetailActivity : AppCompatActivity(), PlayMusicCallback {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_music_detail)
-
         val intent = Intent(this, MusicService::class.java)
         bindService(intent, conn, BIND_AUTO_CREATE)
-
         bt_kill.setOnClickListener {
-            musicService!!.stopSelf()
+            mPlayerManager!!.setPlayerBarVisibility(true)
         }
     }
 
-
     private var conn = object : ServiceConnection {
-        override fun onServiceDisconnected(name: ComponentName?) {
-
-        }
+        override fun onServiceDisconnected(name: ComponentName?) {}
 
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             val myBinder = service as (MusicService.MyBinder)
@@ -63,5 +58,9 @@ class MusicDetailActivity : AppCompatActivity(), PlayMusicCallback {
             mPlayerManager = null
         }
         unbindService(conn)
+    }
+
+    override fun onPlayerBarVisibleState(isVisible: Boolean) {
+
     }
 }

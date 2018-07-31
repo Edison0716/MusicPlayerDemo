@@ -13,16 +13,19 @@ import java.util.concurrent.TimeUnit
  *@date: Created in 2018/7/30 下午5:05
  *@modified by:
  */
+
 class PlayerManager private constructor(musicService: MusicService) {
     private var mediaPlayer: MediaPlayer? = null
     private var mMusicService = musicService
     private var mPlayMusicCallbackList: ArrayList<PlayMusicCallback> = ArrayList()
     private var disposable: Disposable? = null
+    private var mPlayerBarVisibility = false
 
     companion object {
         @Volatile
         var instance: PlayerManager? = null
 
+        //单例
         fun getInstance(musicService: MusicService): PlayerManager? {
             if (instance == null) {
                 synchronized(PlayerManager::class) {
@@ -36,7 +39,7 @@ class PlayerManager private constructor(musicService: MusicService) {
     }
 
     init {
-
+        //实例化MediaPlayer
         if (mediaPlayer == null) {
             mediaPlayer = MediaPlayer()
         }
@@ -46,21 +49,20 @@ class PlayerManager private constructor(musicService: MusicService) {
 
         //音乐播放监听
         mediaPlayer!!.setOnCompletionListener {
-
-            for (i in 0 until mPlayMusicCallbackList.size){
+            for (i in 0 until mPlayMusicCallbackList.size) {
                 mPlayMusicCallbackList[i].onPlayMusicComplete()
             }
-
         }
 
         //音乐缓冲完成
         mediaPlayer!!.setOnPreparedListener {
             mediaPlayer!!.start()
-            for (i in 0 until mPlayMusicCallbackList.size){
+            for (i in 0 until mPlayMusicCallbackList.size) {
                 mPlayMusicCallbackList[i].onPlayerMediaPrepared()
             }
         }
 
+        //防止多次创建倒计时
         if (disposable != null && !disposable!!.isDisposed) {
             disposable!!.dispose()
         }
@@ -69,12 +71,10 @@ class PlayerManager private constructor(musicService: MusicService) {
         disposable = Observable.interval(1, TimeUnit.SECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
-                    for (i in 0 until mPlayMusicCallbackList.size){
+                    for (i in 0 until mPlayMusicCallbackList.size) {
                         mPlayMusicCallbackList[i].onPlayerCurrentPosition(mediaPlayer!!.currentPosition)
                     }
                 }
-
-
     }
 
     //添加监听回调
@@ -83,7 +83,7 @@ class PlayerManager private constructor(musicService: MusicService) {
     }
 
     //移除监听回调
-    fun removeListenerCallback(playMusicCallback: PlayMusicCallback){
+    fun removeListenerCallback(playMusicCallback: PlayMusicCallback) {
         mPlayMusicCallbackList.remove(playMusicCallback)
     }
 
@@ -100,9 +100,7 @@ class PlayerManager private constructor(musicService: MusicService) {
     }
 
     //播放一组音乐
-    fun playMusic(musicRes: ArrayList<String>) {
-
-    }
+    fun playMusic(musicRes: ArrayList<String>) {}
 
     //停止播放
     fun stopMusic() {
@@ -130,10 +128,25 @@ class PlayerManager private constructor(musicService: MusicService) {
             disposable!!.dispose()
         }
 
+        //停止播放
         stopMusic()
 
+        //置空
         if (mediaPlayer != null) {
             mediaPlayer = null
         }
+    }
+
+    //获取播放控制板是否可见
+    fun setPlayerBarVisibility(isVisible: Boolean) {
+        this.mPlayerBarVisibility = isVisible
+        for (i in 0 until mPlayMusicCallbackList.size) {
+            mPlayMusicCallbackList[i].onPlayerBarVisibleState(isVisible)
+        }
+    }
+
+    //获取播放控制板是否可见
+    fun getPlayerBarVisibility(): Boolean {
+        return this.mPlayerBarVisibility
     }
 }
